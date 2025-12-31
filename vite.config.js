@@ -8,8 +8,12 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: true
+      },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
+
         name: '東京旅遊行程',
         short_name: '東京旅遊',
         description: '5天4夜東京旅遊行程規劃與記錄',
