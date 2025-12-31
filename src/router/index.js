@@ -13,20 +13,21 @@ const routes = [
     component: () => import('../views/Itinerary.vue')
   },
   {
+    path: '/checklist',
+    name: 'Checklist',
+    component: () => import('../views/Checklist.vue')
+  },
+  {
     path: '/expense',
     name: 'Expense',
     component: () => import('../views/Expense.vue')
-  },
-  {
-    path: '/vouchers',
-    name: 'Vouchers',
-    component: () => import('../views/Vouchers.vue')
   },
   {
     path: '/assistant',
     name: 'Assistant',
     component: () => import('../views/Assistant.vue')
   }
+
 ]
 
 const router = createRouter({

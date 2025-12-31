@@ -1,163 +1,177 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useExpenseStore } from '../stores/expense'
-import { Plus, Trash2, Utensils, Train, ShoppingBag, MoreHorizontal, Wallet, ArrowDown } from 'lucide-vue-next'
+import { Plus, CreditCard, ChevronDown, Trash2, JapaneseYen, Calculator, ArrowRightLeft } from 'lucide-vue-next'
 
 const expenseStore = useExpenseStore()
-const showAdd = ref(false)
+const isAdding = ref(false)
+const amount = ref('')
+const category = ref('餐飲')
+const note = ref('')
+const currency = ref('JPY') // 目前輸入的幣別
 
-const newExpense = ref({
-  amount: '',
-  category: 'food',
-  note: ''
-})
-
-const categories = {
-  food: { label: '餐飲', icon: Utensils, color: 'text-orange-500 bg-orange-100' },
-  transport: { label: '交通', icon: Train, color: 'text-blue-500 bg-blue-100' },
-  shop: { label: '購物', icon: ShoppingBag, color: 'text-pink-500 bg-pink-100' },
-  other: { label: '其他', icon: MoreHorizontal, color: 'text-slate-500 bg-slate-100' }
-}
+const categories = ['餐飲', '交通', '購物', '娛樂', '其他']
 
 const handleAdd = () => {
-  if (!newExpense.value.amount) return
+  if (!amount.value) return
   expenseStore.addExpense({
-    amount: Number(newExpense.value.amount),
-    category: newExpense.value.category,
-    note: newExpense.value.note || categories[newExpense.value.category].label
+    amount: Number(amount.value),
+    category: category.value,
+    note: note.value,
+    currency: currency.value
   })
-  newExpense.value = { amount: '', category: 'food', note: '' }
-  showAdd.value = false
+  amount.value = ''
+  note.value = ''
+  isAdding.value = false
 }
 
-const budgetProgress = () => {
-  const percent = (expenseStore.totalSpent / expenseStore.budget) * 100
-  return Math.min(percent, 100)
-}
+const budgetProgress = computed(() => {
+  return Math.min(100, Math.round((expenseStore.totalSpent / expenseStore.budget) * 100))
+})
 </script>
 
 <template>
-  <div class="space-y-6">
-    <header class="flex justify-between items-end">
+  <div class="space-y-8 pb-10">
+    <header class="flex justify-between items-end px-2">
       <div>
-        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">支出管理</h1>
-        <p class="text-slate-500 font-medium">預算剩餘：¥{{ expenseStore.remainingBudget.toLocaleString() }}</p>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">支出管理</h1>
+        <p class="text-slate-500 font-medium">自定義匯率計帳系統</p>
       </div>
-      <button 
-        @click="showAdd = !showAdd"
-        class="bg-ice-blue text-white p-4 rounded-2xl shadow-lg shadow-blue-200 hover:scale-105 active:scale-95 transition-all"
-      >
-        <Plus v-if="!showAdd" :size="24" />
-        <span v-else class="text-sm font-bold">取消</span>
-      </button>
+      <div class="text-right">
+        <div class="flex items-center space-x-1 justify-end text-ice-blue font-black mb-1">
+          <Calculator :size="14" />
+          <input 
+            type="number" 
+            step="0.001"
+            v-model="expenseStore.customRate"
+            class="w-16 bg-transparent border-none p-0 text-sm focus:ring-0 text-right leading-none"
+          />
+        </div>
+        <p class="text-[8px] font-black text-slate-300 uppercase tracking-widest">當前設定匯率 (JPY to TWD)</p>
+      </div>
     </header>
 
-    <!-- 預算統計看板 -->
-    <section class="glass p-6 rounded-[2.5rem] border border-white shadow-sm ring-1 ring-slate-100/50 space-y-6">
-      <div class="flex items-center space-x-4">
-        <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500">
-          <Wallet :size="24" />
-        </div>
-        <div>
-          <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">目前總支出</p>
-          <div class="flex items-baseline space-x-2">
-            <span class="text-3xl font-black text-slate-900 font-mono">¥{{ expenseStore.totalSpent.toLocaleString() }}</span>
-            <span class="text-slate-400 text-sm font-bold">≈ NT${{ expenseStore.totalSpentTWD }}</span>
+    <!-- 預算看板 -->
+    <section class="relative overflow-hidden group">
+      <div class="absolute inset-0 bg-slate-900 rounded-[3rem] shadow-2xl"></div>
+      <div class="relative p-10 text-white">
+        <div class="flex justify-between items-start mb-10">
+          <div>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">總合支出 / Total Spent</p>
+            <div class="flex items-baseline space-x-2">
+              <span class="text-xs font-bold text-slate-500">¥</span>
+              <h2 class="text-5xl font-black tracking-tighter">{{ expenseStore.totalSpent.toLocaleString() }}</h2>
+            </div>
+            <p class="text-sm font-bold text-ice-blue mt-2">≈ TWD {{ parseFloat(expenseStore.totalSpentTWD).toLocaleString() }}</p>
+          </div>
+          <div class="p-4 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-md">
+            <JapaneseYen :size="24" class="text-ice-blue" />
           </div>
         </div>
-      </div>
 
-      <div class="space-y-2">
-        <div class="flex justify-between text-xs font-bold">
-          <span class="text-slate-400 uppercase tracking-tighter">Budget Progress</span>
-          <span :class="budgetProgress() > 90 ? 'text-red-500' : 'text-ice-blue'">{{ budgetProgress().toFixed(1) }}%</span>
-        </div>
-        <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-          <div 
-            class="h-full bg-ice-blue transition-all duration-1000 ease-out"
-            :style="{ width: `${budgetProgress()}%` }"
-          ></div>
+        <div class="space-y-3">
+          <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
+            <span class="text-slate-400">旅費進度</span>
+            <span :class="budgetProgress > 80 ? 'text-red-400' : 'text-ice-blue'">{{ budgetProgress }}%</span>
+          </div>
+          <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div 
+              class="h-full transition-all duration-1000 ease-out"
+              :class="budgetProgress > 80 ? 'bg-red-400' : 'bg-ice-blue shadow-[0_0_10px_rgba(56,189,248,0.5)]'"
+              :style="{ width: `${budgetProgress}%` }"
+            ></div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 新增支出表單 -->
-    <transition name="slide">
-      <section v-if="showAdd" class="glass p-6 rounded-3xl border border-white shadow-inner bg-slate-50/50 space-y-4">
-        <div class="grid grid-cols-2 gap-3">
-          <div class="col-span-2">
-            <label class="text-xs font-bold text-slate-400 block mb-2 px-1">金額 (JPY)</label>
-            <input 
-              v-model="newExpense.amount" 
-              type="number" 
-              placeholder="0"
-              class="w-full bg-white border-none rounded-2xl p-4 text-2xl font-black text-slate-900 focus:ring-2 focus:ring-ice-blue transition-shadow"
-            />
-          </div>
-          <div class="col-span-2">
-            <label class="text-xs font-bold text-slate-400 block mb-2 px-1">備註 (可選)</label>
-            <input 
-              v-model="newExpense.note" 
-              type="text" 
-              placeholder="敘敘苑、伴手禮等" 
-              class="w-full bg-white border-none rounded-2xl p-4 text-slate-900 focus:ring-2 focus:ring-ice-blue transition-shadow font-medium"
-            />
-          </div>
-          <div 
-            v-for="(cat, key) in categories" 
-            :key="key"
-            @click="newExpense.category = key"
-            class="flex items-center space-x-3 p-3 rounded-2xl transition-all cursor-pointer border-2"
-            :class="newExpense.category === key ? 'bg-white border-ice-blue ring-1 ring-blue-100 shadow-sm' : 'bg-white/50 border-transparent'"
+    <!-- 快速記帳表單 -->
+    <button 
+      v-if="!isAdding"
+      @click="isAdding = true"
+      class="w-full glass py-6 rounded-[2.5rem] border border-white flex items-center justify-center space-x-3 text-slate-700 font-black tracking-widest active:scale-95 transition-all shadow-sm"
+    >
+      <Plus :size="20" class="text-ice-blue" />
+      <span>新增消費紀錄</span>
+    </button>
+
+    <div v-else class="glass p-8 rounded-[3rem] border border-white space-y-6 shadow-xl animate-in zoom-in-95 duration-300">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest">紀錄明細</h3>
+        <button @click="isAdding = false" class="text-slate-300 font-bold text-xs">取消</button>
+      </div>
+      
+      <div class="space-y-4">
+        <div class="relative">
+          <input 
+            v-model="amount" 
+            type="number" 
+            placeholder="0.00"
+            class="w-full bg-slate-50 border-none rounded-3xl py-6 px-8 text-3xl font-black text-slate-900 focus:ring-2 focus:ring-ice-blue transition-all"
+          />
+          <button 
+            @click="currency = currency === 'JPY' ? 'TWD' : 'JPY'"
+            class="absolute right-4 top-1/2 -translate-y-1/2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-2 text-xs font-black text-ice-blue"
           >
-            <div :class="['p-2 rounded-xl', cat.color]">
-              <component :is="cat.icon" :size="18" />
-            </div>
-            <span class="text-sm font-bold text-slate-700">{{ cat.label }}</span>
-          </div>
+            <ArrowRightLeft :size="12" />
+            <span>{{ currency }}</span>
+          </button>
         </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <button 
+            v-for="cat in categories" 
+            :key="cat"
+            @click="category = cat"
+            :class="['py-3 rounded-2xl text-[10px] font-black transition-all border', category === cat ? 'bg-slate-900 text-white border-transparent' : 'bg-white text-slate-400 border-slate-100']"
+          >
+            {{ cat }}
+          </button>
+        </div>
+
+        <input 
+          v-model="note" 
+          type="text" 
+          placeholder="備註資訊 (非必填)"
+          class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-ice-blue transition-all"
+        />
+
         <button 
           @click="handleAdd"
-          class="w-full bg-slate-900 text-white p-4 rounded-2xl font-black hover:bg-slate-800 transition-colors mt-2"
+          class="w-full py-5 bg-ice-blue text-white rounded-[2rem] font-black shadow-lg shadow-blue-100 active:scale-[0.98] transition-all tracking-widest uppercase text-sm"
         >
-          確認新增記錄
+          保存這筆支出
         </button>
-      </section>
-    </transition>
+      </div>
+    </div>
 
-    <!-- 支出清單 -->
+    <!-- 歷史清單 -->
     <section class="space-y-4">
-      <div class="flex items-center space-x-2 px-2">
-        <ArrowDown :size="16" class="text-slate-400" />
-        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest">近期紀錄</h3>
+      <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest px-2">消費清單 / History</h2>
+      
+      <div v-if="expenseStore.expenses.length === 0" class="text-center py-20 bg-slate-50 rounded-[3rem] border border-dashed border-slate-200">
+        <p class="text-slate-300 font-bold text-sm">目前尚無銷費紀錄</p>
       </div>
 
-      <div v-if="expenseStore.expenses.length === 0" class="text-center py-10 opacity-30">
-        <p class="text-sm font-medium">尚無支出記錄</p>
-      </div>
-
-      <div 
-        v-for="item in expenseStore.expenses" 
-        :key="item.id"
-        class="glass p-4 rounded-3xl border border-white flex justify-between items-center group animate-in fade-in slide-in-from-left-4 duration-300"
-      >
-        <div class="flex items-center space-x-4">
-          <div :class="['p-3 rounded-2xl', categories[item.category].color]">
-            <component :is="categories[item.category].icon" :size="20" />
+      <div class="space-y-3">
+        <div 
+          v-for="item in expenseStore.expenses" 
+          :key="item.id"
+          class="glass p-5 rounded-[2rem] border border-white flex items-center justify-between shadow-sm active:scale-[0.99] transition-all"
+        >
+          <div class="flex items-center space-x-4">
+            <div class="p-3 bg-slate-50 rounded-2xl text-slate-400">
+              <CreditCard :size="18" />
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-slate-800">{{ item.note || item.category }}</h4>
+              <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{{ item.date }} • {{ item.category }}</p>
+            </div>
           </div>
-          <div>
-            <h4 class="font-bold text-slate-900">{{ item.note }}</h4>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">{{ item.date }} · {{ categories[item.category].label }}</p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-4">
           <div class="text-right">
-            <p class="font-black text-slate-900 tracking-tighter">¥{{ item.amount.toLocaleString() }}</p>
-            <p class="text-[10px] text-slate-400 font-bold text-right">≈ NT${{ (item.amount * expenseStore.exchangeRate).toFixed(0) }}</p>
+            <p class="text-sm font-black text-slate-900">{{ item.currency === 'JPY' ? '¥' : '$' }} {{ item.amount.toLocaleString() }}</p>
+            <p v-if="item.currency === 'JPY'" class="text-[10px] font-bold text-ice-blue">≈ ${{ (item.amount * expenseStore.customRate).toFixed(0) }}</p>
           </div>
-          <button @click="expenseStore.removeExpense(item.id)" class="text-slate-100 group-hover:text-red-300 transition-colors p-1">
-            <Trash2 :size="16" />
-          </button>
         </div>
       </div>
     </section>
@@ -165,13 +179,8 @@ const budgetProgress = () => {
 </template>
 
 <style scoped>
-.slide-enter-active, .slide-leave-active {
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  max-height: 500px;
-}
-.slide-enter-from, .slide-leave-to {
-  opacity: 0;
-  max-height: 0;
-  transform: translateY(-20px);
+.glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(15px);
 }
 </style>
