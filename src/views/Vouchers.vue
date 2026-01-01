@@ -128,7 +128,7 @@ const handleFileUpload = (event, id) => {
         <QrCode :size="16" />
       </div>
       <p class="text-xs text-blue-600/80 leading-relaxed font-medium">
-        <b>提示：</b> 截圖你的門票、JR Pass 或旅宿 QR Code 並上傳，PWA 會將其快取在手機中，即使在地鐵內沒有網路也能隨時開啟出示。
+        <b>提示：</b> 截圖你的門票、JR Pass 或旅宿 QR Code 並上傳，會將其快取在手機中，即使在地鐵內沒有網路也能隨時開啟出示。
       </p>
     </div>
   </div>

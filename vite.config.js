@@ -13,7 +13,6 @@ export default defineConfig({
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-
         name: '東京旅遊行程',
         short_name: '東京旅遊',
         description: '5天4夜東京旅遊行程規劃與記錄',
@@ -30,7 +29,11 @@ export default defineConfig({
             type: 'image/png'
           }
         ]
-      }
+      },
+      workbox: {
+        navigateFallback: '/',
+        cleanupOutdatedCaches: true,
+      },
     })
   ],
 })
