@@ -1,12 +1,22 @@
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useItineraryStore } from '../stores/itinerary'
+import { TRIP_CONFIG } from '../config/tripConfig'
 import { MapPin, Clock, Info, ChevronRight, Train, Utensils, Camera, CheckCircle2, Navigation } from 'lucide-vue-next'
 
 const route = useRoute()
 const itineraryStore = useItineraryStore()
 const activeDay = ref(1)
+
+// 計算下一個需要採點的項目 ID (全域搜尋)
+const nextActionId = computed(() => {
+  for (const day of itineraryStore.days) {
+    const found = day.items.find(item => !item.actualArrival)
+    if (found) return found.id
+  }
+  return null
+})
 
 // 時間計算工具
 const calculateDiff = (planned, actual) => {
@@ -36,6 +46,9 @@ const calculateStay = (prevActual, currActual) => {
   return h > 0 ? `${h}時${m}分` : `${m}分`
 }
 
+// 根據設定檔顯示日期範圍
+const rangeDisplay = TRIP_CONFIG.info.rangeDisplay
+
 onMounted(() => {
   if (route.query.itemId) {
     const itemId = Number(route.query.itemId)
@@ -64,6 +77,11 @@ const getTypeConfig = (type) => {
   }
 }
 
+const formatDate = (dateStr) => {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return `${m}/${d}`
+}
+
 const handleCheckIn = (id) => {
   itineraryStore.checkIn(id, 'arrival')
 }
@@ -72,26 +90,37 @@ const handleCheckIn = (id) => {
 <template>
   <div class="space-y-6">
     <!-- 頁面標題 -->
-    <header class="px-2">
-      <h1 class="text-3xl font-black text-slate-900 tracking-tight">行程排程</h1>
-      <p class="text-slate-500 font-medium">1/7 - 1/11 真實旅程追蹤</p>
+    <header class="flex items-center justify-between px-2">
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">行程排程</h1>
+        <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Itinerary</p>
+      </div>
+      
+      <!-- 行前準備快捷按鈕 -->
+      <RouterLink to="/checklist" class="flex items-center space-x-1.5 bg-blue-50 text-blue-500 px-3 py-2 rounded-full active:scale-95 transition-all outline-none ring-2 ring-blue-100 hover:bg-blue-100">
+        <CheckSquare :size="14" />
+        <span class="text-[10px] font-bold">行前準備</span>
+      </RouterLink>
     </header>
 
-    <!-- 天數切換 Tab -->
-    <div class="tab-list flex gap-3 overflow-x-auto scrollbar-hide p-2 items-center">
-      <button 
-        v-for="day in itineraryStore.days" 
-        :key="day.id"
-        @click="activeDay = day.id"
-        class="flex-shrink-0 px-6 py-4 rounded-[2rem] transition-all duration-300 font-bold text-sm transform-origin-center"
-        :class="activeDay === day.id 
-          ? 'bg-ice-blue text-white shadow-md scale-105' 
-          : 'bg-white text-slate-400 border border-slate-100 scale-100'"
-      >
-        {{ day.id === 1 ? '1/7' : day.id === 2 ? '1/8' : day.id === 3 ? '1/9' : day.id === 4 ? '1/10' : '1/11' }}
-        <span class="block text-[8px] opacity-70 uppercase mt-1">Day {{ day.id }}</span>
-      </button>
+    <!-- 天數切換 Tab (Sticky) -->
+    <div class="sticky top-0 z-40 pt-4 pb-4 -mx-4 px-6 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm">
+      <div class="tab-list flex gap-3 overflow-x-auto scrollbar-hide items-center">
+        <button 
+          v-for="day in itineraryStore.days" 
+          :key="day.id"
+          @click="activeDay = day.id"
+          class="flex-shrink-0 px-6 py-4 rounded-[2rem] transition-all duration-300 font-bold text-sm transform-origin-center ring-1 ring-inset"
+          :class="activeDay === day.id 
+            ? 'bg-ice-blue text-white shadow-lg shadow-blue-200/50 ring-transparent' 
+            : 'bg-white text-slate-400 ring-slate-100 scale-100'"
+        >
+          {{ formatDate(day.date) }}
+          <span class="block text-[8px] opacity-70 uppercase mt-1">Day {{ day.id }}</span>
+        </button>
+      </div>
     </div>
+
 
     <!-- 當前行程清單 -->
     <div v-for="day in itineraryStore.days" :key="day.id">
@@ -120,8 +149,8 @@ const handleCheckIn = (id) => {
 
             <div 
               :id="`item-${item.id}`"
-              class="relative glass p-5 rounded-[2.5rem] border transition-all active:scale-[0.99] shadow-sm"
-              :class="item.actualArrival ? 'bg-ice-blue/[0.03] border-ice-blue/10 scale-[0.98]' : 'bg-white border-white'"
+              class="relative glass p-5 rounded-[2.5rem] border transition-all duration-500 shadow-sm"
+              :class="item.actualArrival ? 'bg-ice-blue/[0.03] border-ice-blue/10 scale-[0.98]' : 'bg-white border-white active:scale-[0.99]'"
             >
               <div class="flex justify-between items-start mb-3">
                 <div class="flex items-center space-x-3">
@@ -144,18 +173,20 @@ const handleCheckIn = (id) => {
                   </div>
                 </div>
                 
-                <!-- 採點按鈕 -->
-                <button 
-                  v-if="!item.actualArrival"
-                  @click="handleCheckIn(item.id)"
-                  class="bg-ice-blue text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 active:scale-95 transition-all"
-                >
-                  採點
-                </button>
-                <div v-else class="text-right">
+                <!-- 狀態顯示與操作區 -->
+                <div v-if="item.actualArrival" class="text-right">
                   <p class="text-[10px] font-black text-ice-blue uppercase tracking-widest opacity-60">已採點</p>
                   <p class="text-sm font-black text-slate-900">{{ item.actualArrival }}</p>
                 </div>
+                
+                <!-- 智慧採點按鈕：全域唯一，僅顯示在當前最近的未完成項目 -->
+                <button 
+                  v-else-if="item.id === nextActionId"
+                  @click="handleCheckIn(item.id)"
+                  class="bg-ice-blue text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 active:scale-95 transition-all animate-bounce"
+                >
+                  採點
+                </button>
               </div>
 
               <p class="text-sm text-slate-500 font-medium leading-normal pl-2 border-l-2 border-slate-50">{{ item.desc }}</p>

@@ -1,16 +1,16 @@
 <script setup>
 import { RouterView, RouterLink } from 'vue-router'
-import { Calendar, CreditCard, Home, QrCode, HelpingHand, CheckSquare } from 'lucide-vue-next'
+import { Calendar, CreditCard, Home, QrCode, HelpingHand } from 'lucide-vue-next'
 import SnowEffect from './components/SnowEffect.vue'
 </script>
 
 <template>
-  <div class="min-h-screen relative overflow-x-hidden bg-slate-50">
+  <div class="h-screen relative overflow-x-hidden bg-slate-50">
     <!-- 落雪背景動畫組件 -->
     <SnowEffect />
     
     <!-- 主要內容區 -->
-    <main class="relative pb-24 pt-6 px-4 max-w-md mx-auto z-10 transition-all duration-500">
+    <main class="pb-24 pt-6 px-4 max-w-md mx-auto z-10 transition-all duration-500">
 
       <RouterView v-slot="{ Component }">
         <transition name="fade" mode="out-in">
@@ -27,9 +27,6 @@ import SnowEffect from './components/SnowEffect.vue'
         </RouterLink>
         <RouterLink to="/itinerary" class="nav-link" active-class="active-nav" title="行程">
           <Calendar :size="20" />
-        </RouterLink>
-        <RouterLink to="/checklist" class="nav-link" active-class="active-nav" title="清單">
-          <CheckSquare :size="20" />
         </RouterLink>
         <RouterLink to="/expense" class="nav-link" active-class="active-nav" title="消費">
           <CreditCard :size="20" />

@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useChecklistStore } from '../stores/checklist'
-import { Plus, Trash2, CheckCircle2, Circle, ChevronDown, PackageCheck } from 'lucide-vue-next'
+import { Plus, Trash2, CheckCircle2, Circle, ChevronDown, PackageCheck, ArrowLeft } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const checklistStore = useChecklistStore()
 const expanded = ref(['luggage', 'tasks'])
 const newItemText = ref('')
@@ -25,10 +27,13 @@ const handleAdd = () => {
 
 <template>
   <div class="space-y-6">
-    <header class="flex justify-between items-end">
+    <header class="flex justify-between items-center">
+      <button @click="router.back()" class="p-3 bg-white border border-slate-100 rounded-2xl shadow-sm text-slate-600 active:scale-95 transition-all">
+        <ArrowLeft :size="20" />
+      </button>
       <div>
-        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">準備清單</h1>
-        <p class="text-slate-500 font-medium">出發前的最後確認</p>
+        <h1 class="text-lg font-black text-slate-800 tracking-tight">行前準備</h1>
+        <!-- <p class="text-slate-500 font-medium">出發前的最後確認</p> -->
       </div>
       <div class="flex items-center space-x-2 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
         <PackageCheck :size="18" class="text-ice-blue" />
@@ -37,7 +42,7 @@ const handleAdd = () => {
     </header>
 
     <!-- 進度條 -->
-    <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden mb-8">
+    <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden mb-8">
       <div 
         class="h-full bg-ice-blue transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(56,189,248,0.5)]"
         :style="{ width: `${checklistStore.totalProgress}%` }"

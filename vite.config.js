@@ -8,9 +8,9 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
-      devOptions: {
-        enabled: true
-      },
+      // devOptions: {
+      //   enabled: true
+      // },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: '東京旅遊行程',
@@ -30,10 +30,10 @@ export default defineConfig({
           }
         ]
       },
-      workbox: {
-        navigateFallback: '/',
-        cleanupOutdatedCaches: true,
-      },
+      // workbox: {
+      //   navigateFallback: '/',
+      //   cleanupOutdatedCaches: true,
+      // },
     })
   ],
 })
