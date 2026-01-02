@@ -2,6 +2,7 @@
 import { RouterView, RouterLink } from 'vue-router'
 import { Calendar, CreditCard, Home, QrCode, HelpingHand } from 'lucide-vue-next'
 import SnowEffect from './components/SnowEffect.vue'
+import ReloadPrompt from './components/ReloadPrompt.vue'
 </script>
 
 <template>
@@ -36,6 +37,9 @@ import SnowEffect from './components/SnowEffect.vue'
         </RouterLink>
       </div>
     </nav>
+    
+    <!-- PWA Update Hint -->
+    <ReloadPrompt />
   </div>
 </template>
 
