@@ -11,6 +11,11 @@ body {
   min-height: 100vh;
 }
 
+#app {
+  /*  GPU 加速 */
+  transform: translateZ(0);
+}
+
 /* 玻璃擬態效果 */
 .glass {
   @apply bg-white/70 backdrop-blur-md border border-white/20;

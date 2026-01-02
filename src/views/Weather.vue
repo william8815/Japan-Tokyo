@@ -34,7 +34,7 @@ const handleRefresh = () => {
 </script>
 
 <template>
-  <div class="space-y-6 pb-20">
+  <div class="space-y-6">
     <!-- 頂部與返回 -->
     <div class="flex items-center justify-between px-2">
       <button @click="router.back()" class="p-3 bg-white border border-slate-100 rounded-2xl shadow-sm text-slate-600 active:scale-95 transition-all">
