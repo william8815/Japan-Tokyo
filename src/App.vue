@@ -5,7 +5,7 @@ import SnowEffect from './components/SnowEffect.vue'
 </script>
 
 <template>
-  <div class="h-screen relative overflow-x-hidden bg-slate-50">
+  <div class="h-[100dvh] relative overflow-x-hidden bg-slate-50">
     <!-- 落雪背景動畫組件 -->
     <SnowEffect />
     
