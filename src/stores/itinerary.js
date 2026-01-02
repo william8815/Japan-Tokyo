@@ -27,6 +27,25 @@ export const useItineraryStore = defineStore('itinerary', {
       }
     })
 
+    // 從 localStorage 讀取已儲存的採點狀態
+    const saved = localStorage.getItem('itinerary')
+    if (saved) {
+      try {
+        const savedData = JSON.parse(saved)
+        // 合併採點狀態到新生成的資料
+        savedData.days?.forEach((savedDay, dayIdx) => {
+          savedDay.items?.forEach((savedItem, itemIdx) => {
+            if (days[dayIdx]?.items[itemIdx]) {
+              days[dayIdx].items[itemIdx].actualArrival = savedItem.actualArrival
+              days[dayIdx].items[itemIdx].actualDeparture = savedItem.actualDeparture
+            }
+          })
+        })
+      } catch (e) {
+        console.error('Failed to load itinerary from localStorage:', e)
+      }
+    }
+
     return { days }
   },
   
@@ -51,6 +70,12 @@ export const useItineraryStore = defineStore('itinerary', {
           else item.actualDeparture = currentTime
         }
       })
+      
+      this.saveToLocalStorage()
+    },
+    
+    saveToLocalStorage() {
+      localStorage.setItem('itinerary', JSON.stringify({ days: this.days }))
     }
   }
 })
