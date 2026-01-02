@@ -1,6 +1,6 @@
 <script setup>
 import { RouterView, RouterLink } from 'vue-router'
-import { Calendar, CreditCard, Home, QrCode, HelpingHand } from 'lucide-vue-next'
+import { Calendar, Calculator, Home, HelpingHand } from 'lucide-vue-next'
 import SnowEffect from './components/SnowEffect.vue'
 import ReloadPrompt from './components/ReloadPrompt.vue'
 </script>
@@ -30,7 +30,7 @@ import ReloadPrompt from './components/ReloadPrompt.vue'
           <Calendar :size="20" />
         </RouterLink>
         <RouterLink to="/expense" class="nav-link" active-class="active-nav" title="消費">
-          <CreditCard :size="20" />
+          <Calculator :size="20" />
         </RouterLink>
         <RouterLink to="/assistant" class="nav-link" active-class="active-nav" title="助手/憑證">
           <HelpingHand :size="20" />

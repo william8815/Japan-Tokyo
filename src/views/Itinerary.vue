@@ -93,7 +93,6 @@ const handleCheckIn = (id) => {
     <header class="flex items-center justify-between px-2">
       <div>
         <h1 class="text-3xl font-black text-slate-900 tracking-tight">行程排程</h1>
-        <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Itinerary</p>
       </div>
       
       <!-- 行前準備快捷按鈕 -->

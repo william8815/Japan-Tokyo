@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useExpenseStore, categoryConfig, categories } from '../stores/expense'
 import { useItineraryStore } from '../stores/itinerary'
-import { Plus, ChevronDown, Trash2, JapaneseYen, Calculator, ArrowRightLeft, X, Pencil, Settings, PieChart } from 'lucide-vue-next'
+import { Plus, Trash2, ArrowRightLeft, X, Settings, PieChart } from 'lucide-vue-next'
 
 const router = useRouter()
 const expenseStore = useExpenseStore()
@@ -133,10 +133,9 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <header class="flex justify-between items-end px-2">
+    <header class="flex justify-between items-center px-2">
       <div>
-        <h1 class="text-3xl font-black text-slate-900 tracking-tight">支出管理</h1>
-        <p class="text-slate-500 font-medium">自定義匯率計帳系統</p>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">記帳管理</h1>
       </div>
       <div class="flex items-center space-x-2">
         <button 
@@ -161,13 +160,10 @@ onMounted(() => {
           <div>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">總合支出 / Total Spent</p>
             <div class="flex items-baseline space-x-2">
-              <span class="text-xs font-bold text-slate-500">¥</span>
-              <h2 class="text-5xl font-black tracking-tighter">{{ expenseStore.totalSpent.toLocaleString() }}</h2>
+              <span class="font-bold text-slate-500">¥</span>
+              <h2 class="text-5xl font-black tracking-tighter">{{ Math.round(expenseStore.totalSpent).toLocaleString() }}</h2>
             </div>
-            <p class="text-sm font-bold text-ice-blue mt-2">≈ TWD {{ parseFloat(expenseStore.totalSpentTWD).toLocaleString() }}</p>
-          </div>
-          <div class="p-4 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-md">
-            <JapaneseYen :size="24" class="text-ice-blue" />
+            <p class="text-sm font-bold text-ice-blue mt-2">≈ NTD {{ parseFloat(expenseStore.totalSpentTWD).toLocaleString() }}</p>
           </div>
         </div>
 
