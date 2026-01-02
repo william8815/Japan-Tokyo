@@ -24,4 +24,7 @@ dev-dist
 *.sln
 *.sw?
 
+# Environment Variables
 .env
+.env.*
+!.env.example
