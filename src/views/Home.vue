@@ -248,7 +248,7 @@ const handleRefresh = () => {
           </div>
           <div v-else class="flex items-center space-x-2 text-green-500">
             <CheckCircle :size="12" />
-            <span class="text-[10px] font-bold">目前無待辦</span>
+            <span class="text-[10px] font-bold">已經準備好了</span>
           </div>
         </div>
         <div class="pt-2">

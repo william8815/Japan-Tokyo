@@ -89,7 +89,6 @@ const confirmDelete = () => {
 
 const handleSave = () => {
   if (!amount.value) return
-  
   const payload = {
     amount: Number(amount.value),
     category: category.value,
@@ -97,7 +96,7 @@ const handleSave = () => {
     currency: currency.value,
     ...(editingId.value ? {} : { 
       isoDate: currentDayDate.value, 
-      date: formatDate(currentDayDate.value)
+      date: currentDayDate.value
     })
   }
 

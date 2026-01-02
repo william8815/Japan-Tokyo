@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useChecklistStore } from '../stores/checklist'
-import { Plus, Trash2, CheckCircle2, Circle, ChevronDown, PackageCheck, ArrowLeft } from 'lucide-vue-next'
+import { Plus, Trash2, CheckCircle2, Circle, ChevronDown, PackageCheck, ArrowLeft, ChevronLeft } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -28,12 +28,14 @@ const handleAdd = () => {
 <template>
   <div class="space-y-6">
     <header class="flex justify-between items-center">
-      <button @click="router.back()" class="p-3 bg-white border border-slate-100 rounded-2xl shadow-sm text-slate-600 active:scale-95 transition-all">
-        <ArrowLeft :size="20" />
-      </button>
-      <div>
-        <h1 class="text-lg font-black text-slate-800 tracking-tight">行前準備</h1>
-        <!-- <p class="text-slate-500 font-medium">出發前的最後確認</p> -->
+      <div class="flex items-center space-x-2">
+        <button @click="router.back()" class="p-3 bg-white border border-slate-100 rounded-2xl shadow-sm text-slate-600 active:scale-95 transition-all">
+           <ChevronLeft :size="20" />
+        </button>
+        <div>
+          <h1 class="text-lg font-black text-slate-800 tracking-tight">行前準備</h1>
+          <!-- <p class="text-slate-500 font-medium">出發前的最後確認</p> -->
+        </div>
       </div>
       <div class="flex items-center space-x-2 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
         <PackageCheck :size="18" class="text-ice-blue" />
@@ -101,8 +103,9 @@ const handleAdd = () => {
           :key="item.id"
           class="glass p-4 rounded-2xl border border-white flex items-center justify-between group transition-all"
           :class="{ 'opacity-60 grayscale-[0.5]': item.completed }"
+          @click.stop="checklistStore.toggleItem(group.id, item.id)"
         >
-          <div class="flex items-center space-x-4 flex-1 cursor-pointer" @click="checklistStore.toggleItem(group.id, item.id)">
+          <div class="flex items-center space-x-4 flex-1 cursor-pointer" >
             <div :class="['transition-colors', item.completed ? 'text-ice-blue' : 'text-slate-200']">
               <CheckCircle2 v-if="item.completed" :size="22" />
               <Circle v-else :size="22" />
@@ -113,8 +116,8 @@ const handleAdd = () => {
           </div>
           
           <button 
-            @click="checklistStore.removeItem(group.id, item.id)"
-            class="p-2 text-slate-100 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+            @click.stop="checklistStore.removeItem(group.id, item.id)"
+            class="p-2 text-red-400 transition-colors"
           >
             <Trash2 :size="16" />
           </button>

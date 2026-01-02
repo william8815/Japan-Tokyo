@@ -41,11 +41,8 @@ const phrases = {
   <div class="space-y-6">
     <!-- Header with Back Button -->
     <header class="flex items-center px-2 py-2">
-      <button 
-        @click="router.back()" 
-        class="p-2 -ml-2 text-slate-400 hover:text-slate-600 transition-colors"
-      >
-        <ChevronLeft :size="24" />
+      <button @click="router.back()" class="p-3 bg-white border border-slate-100 rounded-2xl shadow-sm text-slate-600 active:scale-95 transition-all">
+          <ChevronLeft :size="20" />
       </button>
       <h1 class="text-xl font-black text-slate-900 tracking-tight ml-2">常用日語</h1>
     </header>

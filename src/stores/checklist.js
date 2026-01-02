@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 
 export const useChecklistStore = defineStore('checklist', {
-  state: () => ({
-    groups: [
+  state: () => {
+    const defaultGroups = [
       {
         id: 'luggage',
         name: '行李物資',
@@ -24,7 +24,20 @@ export const useChecklistStore = defineStore('checklist', {
         ]
       }
     ]
-  }),
+
+    // 從 localStorage 讀取
+    const saved = localStorage.getItem('checklist')
+    if (saved) {
+      try {
+        const savedData = JSON.parse(saved)
+        return { groups: savedData.groups || defaultGroups }
+      } catch (e) {
+        console.error('Failed to load checklist from localStorage:', e)
+      }
+    }
+
+    return { groups: defaultGroups }
+  },
   getters: {
     totalProgress(state) {
       const allItems = state.groups.flatMap(g => g.items)
@@ -38,20 +51,28 @@ export const useChecklistStore = defineStore('checklist', {
       const group = this.groups.find(g => g.id === groupId)
       if (group) {
         const item = group.items.find(i => i.id === itemId)
-        if (item) item.completed = !item.completed
+        if (item) {
+          item.completed = !item.completed
+          this.saveToLocalStorage()
+        }
       }
     },
     addItem(groupId, text) {
       const group = this.groups.find(g => g.id === groupId)
       if (group) {
         group.items.push({ id: Date.now(), text, completed: false })
+        this.saveToLocalStorage()
       }
     },
     removeItem(groupId, itemId) {
       const group = this.groups.find(g => g.id === groupId)
       if (group) {
         group.items = group.items.filter(i => i.id !== itemId)
+        this.saveToLocalStorage()
       }
+    },
+    saveToLocalStorage() {
+      localStorage.setItem('checklist', JSON.stringify({ groups: this.groups }))
     }
   }
 })

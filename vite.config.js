@@ -8,9 +8,6 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'prompt',
-      // devOptions: {
-      //   enabled: true
-      // },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: '東京旅遊行程',
@@ -30,10 +27,6 @@ export default defineConfig({
           }
         ]
       },
-      // workbox: {
-      //   navigateFallback: '/',
-      //   cleanupOutdatedCaches: true,
-      // },
     })
   ],
 })

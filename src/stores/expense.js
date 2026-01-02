@@ -36,7 +36,7 @@ export const useExpenseStore = defineStore('expense', {
     addExpense(item) {
       this.expenses.unshift({
         id: Date.now(),
-        date: new Date().toLocaleDateString(),
+        date: new Date().toLocaleDateString('en-CA'),
         currency: 'JPY',
         ...item
       })
