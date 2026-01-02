@@ -5,12 +5,12 @@ import SnowEffect from './components/SnowEffect.vue'
 </script>
 
 <template>
-  <div class="h-screen overflow-x-hidden bg-slate-50">
+  <div class="h-screen relative overflow-x-hidden bg-slate-50">
     <!-- 落雪背景動畫組件 -->
     <SnowEffect />
     
     <!-- 主要內容區 -->
-    <main class="pb-24 pt-6 px-4 max-w-md mx-auto z-10 transition-all duration-500">
+    <main class="pb-24 pt-10 px-4 max-w-md mx-auto z-10 transition-all duration-500">
 
       <RouterView v-slot="{ Component }">
         <transition name="fade" mode="out-in">

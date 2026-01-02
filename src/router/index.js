@@ -33,6 +33,16 @@ const routes = [
     component: () => import('../views/Assistant.vue')
   },
   {
+    path: '/assistant/phrases',
+    name: 'JapanesePhrases',
+    component: () => import('../views/JapanesePhrases.vue')
+  },
+  {
+    path: '/assistant/vouchers',
+    name: 'Vouchers',
+    component: () => import('../views/Vouchers.vue')
+  },
+  {
     path: '/weather',
     name: 'Weather',
     component: () => import('../views/Weather.vue')
