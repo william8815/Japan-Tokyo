@@ -72,7 +72,7 @@ export const useChecklistStore = defineStore('checklist', {
       }
     },
     saveToLocalStorage() {
-      localStorage.setItem('checklist', JSON.stringify({ groups: this.groups }))
+      localStorage.setItem('checklist', JSON.stringify(this.groups))
     }
   }
 })

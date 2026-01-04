@@ -6,11 +6,13 @@ import html2pdf from 'html2pdf.js'
 import { useItineraryStore } from '../stores/itinerary'
 import { useExpenseStore } from '../stores/expense'
 import { useVoucherStore } from '../stores/voucher'
+import { useChecklistStore } from '../stores/checklist'
 
 const router = useRouter()
 const itineraryStore = useItineraryStore()
 const expenseStore = useExpenseStore()
 const voucherStore = useVoucherStore()
+const checklistStore = useChecklistStore()
 
 const isGeneratingPdf = ref(false)
 const isExportingJson = ref(false)
@@ -49,6 +51,7 @@ const exportBackup = () => {
       itinerary: itineraryStore.days,
       expenses: expenseStore.expenses,
       vouchers: voucherStore.vouchers,
+      checklist: checklistStore.groups,
       appVersion: '1.0'
     }
 
@@ -84,7 +87,7 @@ const handleFileUpload = (event) => {
       const data = JSON.parse(e.target.result)
       
       // Basic Validation
-      if (!data.itinerary || !data.expenses || !data.vouchers) {
+      if (!data.itinerary || !data.expenses || !data.vouchers || !data.checklist) {
         throw new Error('Invalid Backup File')
       }
 
@@ -102,6 +105,7 @@ const handleFileUpload = (event) => {
         itineraryStore.$patch({ days: data.itinerary })
         expenseStore.$patch({ expenses: data.expenses })
         voucherStore.$patch({ vouchers: data.vouchers })
+        checklistStore.$patch({ groups: data.checklist })
         
         importStatus.value = 'success'
         setTimeout(() => importStatus.value = null, 3000)

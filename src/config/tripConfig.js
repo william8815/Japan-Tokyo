@@ -9,9 +9,9 @@ export const TRIP_CONFIG = {
     title: "東京旅遊 | 你的行程小助手",
     subTitle: "冬日雪白限定版",
     description: "專為東京之旅打造的個人化 PWA，支援行程追蹤、即時記帳、天氣預報與數位憑證存放。",
-    startDate: "2026-01-02",
-    endDate: "2026-01-06",
-    rangeDisplay: "1/2 - 1/6",
+    startDate: "2026-01-07",
+    endDate: "2026-01-11",
+    rangeDisplay: "1/7 - 1/11",
     location: {
       name: "Tokyo, Japan",
       lat: "35.6895",

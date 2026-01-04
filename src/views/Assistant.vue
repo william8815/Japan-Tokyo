@@ -9,8 +9,8 @@ const clearData = () => {
   if (!confirm('確定要清除所有資料嗎？')) return
   // 清除 checklist、expense、voucher、itinerary
   localStorage.removeItem('checklist')
-  localStorage.removeItem('expense')
-  localStorage.removeItem('voucher')
+  localStorage.removeItem('expenses')
+  localStorage.removeItem('vouchers')
   localStorage.removeItem('itinerary')
   // 因為 PWA 的特性，需要重新載入頁面
   location.reload()
