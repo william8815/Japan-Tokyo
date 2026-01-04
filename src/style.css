@@ -8,7 +8,6 @@
 
 body {
   @apply font-sans text-slate-800 antialiased;
-  /* height: 100dvh; */
 }
 
 #app {
