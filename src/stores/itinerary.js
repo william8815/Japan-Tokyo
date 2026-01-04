@@ -11,7 +11,9 @@ export const useItineraryStore = defineStore('itinerary', {
     const startDate = new Date(TRIP_CONFIG.info.startDate)
     
     // 初始化行程資料並套用動態日期
-    const days = TRIP_CONFIG.itinerary.map((day, dayIndex) => {
+    const saved = localStorage.getItem('itinerary')
+    let dayList = saved ? JSON.parse(saved).days : TRIP_CONFIG.itinerary
+    const days = dayList.map((day, dayIndex) => {
       const currentDayDate = new Date(startDate)
       currentDayDate.setDate(startDate.getDate() + dayIndex)
       const dateStr = currentDayDate.toISOString().split('T')[0]
@@ -28,7 +30,6 @@ export const useItineraryStore = defineStore('itinerary', {
     })
 
     // 從 localStorage 讀取已儲存的採點狀態
-    const saved = localStorage.getItem('itinerary')
     if (saved) {
       try {
         const savedData = JSON.parse(saved)
@@ -51,7 +52,7 @@ export const useItineraryStore = defineStore('itinerary', {
   
   actions: {
     /**
-     * 更新行程項目的採點狀態
+     * 更新行程項目的打卡狀態（使用當前時間）
      * @param {number} itemId 
      * @param {'arrival' | 'departure'} type 
      */
@@ -68,6 +69,79 @@ export const useItineraryStore = defineStore('itinerary', {
         if (item) {
           if (type === 'arrival') item.actualArrival = currentTime
           else item.actualDeparture = currentTime
+        }
+      })
+      
+      this.saveToLocalStorage()
+    },
+
+    /**
+     * 手動更新打卡時間
+     * @param {number} itemId 
+     * @param {string} time - HH:MM 格式
+     * @param {'arrival' | 'departure'} type 
+     */
+    updateCheckInTime(itemId, time, type = 'arrival') {
+      this.days.forEach(day => {
+        const item = day.items.find(i => i.id === itemId)
+        if (item) {
+          if (type === 'arrival') item.actualArrival = time
+          else item.actualDeparture = time
+        }
+      })
+      
+      this.saveToLocalStorage()
+    },
+
+    /**
+     * 新增行程項目
+     * @param {number} dayId 
+     * @param {object} item 
+     */
+    addItem(dayId, item) {
+      const day = this.days.find(d => d.id === dayId)
+      if (day) {
+        const newItem = {
+          id: Date.now(),
+          actualArrival: null,
+          actualDeparture: null,
+          details: {},
+          ...item
+        }
+        day.items.push(newItem)
+        // 按時間排序
+        day.items.sort((a, b) => a.time.localeCompare(b.time))
+        this.saveToLocalStorage()
+      }
+    },
+
+    /**
+     * 更新行程項目
+     * @param {number} itemId 
+     * @param {object} updates 
+     */
+    updateItem(itemId, updates) {
+      this.days.forEach(day => {
+        const item = day.items.find(i => i.id === itemId)
+        if (item) {
+          Object.assign(item, updates)
+          // 按時間排序
+          day.items.sort((a, b) => a.time.localeCompare(b.time))
+        }
+      })
+      
+      this.saveToLocalStorage()
+    },
+
+    /**
+     * 刪除行程項目
+     * @param {number} itemId 
+     */
+    deleteItem(itemId) {
+      this.days.forEach(day => {
+        const index = day.items.findIndex(i => i.id === itemId)
+        if (index !== -1) {
+          day.items.splice(index, 1)
         }
       })
       

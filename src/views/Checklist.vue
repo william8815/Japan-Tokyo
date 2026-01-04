@@ -34,7 +34,6 @@ const handleAdd = () => {
         </button>
         <div>
           <h1 class="text-lg font-black text-slate-800 tracking-tight">行前準備</h1>
-          <!-- <p class="text-slate-500 font-medium">出發前的最後確認</p> -->
         </div>
       </div>
       <div class="flex items-center space-x-2 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">

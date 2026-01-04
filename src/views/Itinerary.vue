@@ -3,13 +3,41 @@ import { ref, onMounted, nextTick, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useItineraryStore } from '../stores/itinerary'
 import { TRIP_CONFIG } from '../config/tripConfig'
-import { MapPin, Clock, Info, ChevronRight, Train, Utensils, Camera, CheckCircle2, Navigation } from 'lucide-vue-next'
+import { 
+  MapPin, Clock, Info, ChevronRight, Train, Utensils, Camera, CheckCircle2, 
+  Navigation, X, Edit, Trash2, Plus, CheckSquare, Save 
+} from 'lucide-vue-next'
 
 const route = useRoute()
 const itineraryStore = useItineraryStore()
 const activeDay = ref(1)
 
-// 計算下一個需要採點的項目 ID (全域搜尋)
+// Modal State
+const selectedItem = ref(null)
+const showDetailModal = ref(false)
+const showTimePickerModal = ref(false)
+const showEditModal = ref(false)
+const showAddModal = ref(false)
+const customTime = ref('')
+const addAfterItemId = ref(null)
+
+// Edit Form
+const editForm = ref({
+  time: '',
+  location: '',
+  desc: '',
+  type: 'attraction'
+})
+
+// Add Form
+const addForm = ref({
+  time: '',
+  location: '',
+  desc: '',
+  type: 'attraction'
+})
+
+// 計算下一個需要打卡的項目 ID (全域搜尋)
 const nextActionId = computed(() => {
   for (const day of itineraryStore.days) {
     const found = day.items.find(item => !item.actualArrival)
@@ -56,7 +84,6 @@ onMounted(() => {
       const found = day.items.find(i => i.id === itemId)
       if (found) {
         activeDay.value = day.id
-        // 跳轉到對應項目位置
         nextTick(() => {
           const el = document.getElementById(`item-${itemId}`)
           if (el) {
@@ -82,8 +109,88 @@ const formatDate = (dateStr) => {
   return `${m}/${d}`
 }
 
-const handleCheckIn = (id) => {
+// 快速打卡（使用當前時間）
+const handleQuickCheckIn = (id) => {
   itineraryStore.checkIn(id, 'arrival')
+}
+
+// 開啟詳細 Modal
+const openDetailModal = (item) => {
+  selectedItem.value = item
+  showDetailModal.value = true
+}
+
+// 關閉詳細 Modal
+const closeDetailModal = () => {
+  showDetailModal.value = false
+  selectedItem.value = null
+}
+
+// 開啟編輯 Modal
+const openEditModal = () => {
+  editForm.value = {
+    time: selectedItem.value.time,
+    actualArrival: selectedItem.value.actualArrival || '',
+    location: selectedItem.value.location,
+    desc: selectedItem.value.desc,
+    type: selectedItem.value.type
+  }
+  showDetailModal.value = false
+  showEditModal.value = true
+}
+
+// 儲存編輯
+const saveEdit = () => {
+  if (editForm.value.time && editForm.value.location) {
+    itineraryStore.updateItem(selectedItem.value.id, {
+      time: editForm.value.time,
+      actualArrival: editForm.value.actualArrival,
+      location: editForm.value.location,
+      desc: editForm.value.desc,
+      type: editForm.value.type
+    })
+    showEditModal.value = false
+    selectedItem.value = null
+  }
+}
+
+// 開啟新增 Modal
+const openAddModal = (afterItemId) => {
+  addAfterItemId.value = afterItemId
+  addForm.value = {
+    time: '',
+    location: '',
+    desc: '',
+    type: 'attraction'
+  }
+  showAddModal.value = true
+}
+
+// 儲存新增
+const saveAdd = () => {
+  if (addForm.value.time && addForm.value.location) {
+    itineraryStore.addItem(activeDay.value, {
+      time: addForm.value.time,
+      location: addForm.value.location,
+      desc: addForm.value.desc,
+      type: addForm.value.type
+    })
+    showAddModal.value = false
+    addForm.value = {
+      time: '',
+      location: '',
+      desc: '',
+      type: 'attraction'
+    }
+  }
+}
+
+// 刪除行程項目
+const deleteItem = (id) => {
+  if (confirm('確定要刪除這個行程項目嗎？')) {
+    itineraryStore.deleteItem(id)
+    closeDetailModal()
+  }
 }
 </script>
 
@@ -132,9 +239,9 @@ const handleCheckIn = (id) => {
             :key="item.id"
             class="relative pb-10"
           >
-            <!-- 停留時間顯示 (顯示在目前景點的上方，前提是下一個景點也採點了) -->
+            <!-- 停留時間顯示 -->
             <div v-if="index < day.items.length - 1 && item.actualArrival && day.items[index+1].actualArrival" class="absolute left-6 -top-3 z-20">
-              <div class="bg-ice-blue text-[9px] text-white px-3 py-1 rounded-full font-black flex items-center space-x-1 shadow-lg shadow-blue-100 ring-2 ring-white">
+              <div class="bg-ice-blue text-[10px] text-white px-3 py-1 rounded-full font-black flex items-center space-x-1 shadow-lg shadow-blue-100 ring-2 ring-white">
                 <Clock :size="8" />
                 <span>在此處停留 {{ calculateStay(item.actualArrival, day.items[index+1].actualArrival) }}</span>
               </div>
@@ -148,7 +255,8 @@ const handleCheckIn = (id) => {
 
             <div 
               :id="`item-${item.id}`"
-              class="relative glass p-5 rounded-[2.5rem] border transition-all duration-500 shadow-sm"
+              @click="openDetailModal(item)"
+              class="w-full text-left relative glass p-5 rounded-[2.5rem] border transition-all duration-500 shadow-sm group"
               :class="item.actualArrival ? 'bg-ice-blue/[0.03] border-ice-blue/10 scale-[0.98]' : 'bg-white border-white active:scale-[0.99]'"
             >
               <div class="flex justify-between items-start mb-3">
@@ -174,32 +282,298 @@ const handleCheckIn = (id) => {
                 
                 <!-- 狀態顯示與操作區 -->
                 <div v-if="item.actualArrival" class="text-right">
-                  <p class="text-[10px] font-black text-ice-blue uppercase tracking-widest opacity-60">已採點</p>
+                  <p class="text-[10px] font-black text-ice-blue uppercase tracking-widest opacity-60">已打卡</p>
                   <p class="text-sm font-black text-slate-900">{{ item.actualArrival }}</p>
                 </div>
                 
-                <!-- 智慧採點按鈕：全域唯一，僅顯示在當前最近的未完成項目 -->
+                <!-- 智慧打卡按鈕：全域唯一，僅顯示在當前最近的未完成項目 -->
                 <button 
                   v-else-if="item.id === nextActionId"
-                  @click="handleCheckIn(item.id)"
+                  @click.stop="handleQuickCheckIn(item.id)"
                   class="bg-ice-blue text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 active:scale-95 transition-all animate-bounce"
                 >
-                  採點
+                  打卡
                 </button>
               </div>
-
-              <p class="text-sm text-slate-500 font-medium leading-normal pl-2 border-l-2 border-slate-50">{{ item.desc }}</p>
-
-              <!-- 詳細標籤 -->
-              <div v-if="item.details?.mustTry || item.details?.note" class="mt-4 flex flex-wrap gap-2 pl-2">
-                <span v-for="tag in item.details.mustTry" :key="tag" class="bg-ice-blue/5 px-2 py-1 rounded-lg text-[9px] font-bold text-ice-blue border border-ice-blue/10">✨ {{ tag }}</span>
-                <span v-if="item.details.note" class="bg-slate-50 px-2 py-1 rounded-lg text-[9px] font-bold text-slate-400">📝 {{ item.details.note }}</span>
-              </div>
+              <!-- 行程描述 : 超過 2 行以 ... 結束 -->
+              <p class="text-sm text-slate-500 font-medium leading-normal pl-2 border-l-2 border-slate-50 line-clamp-2 whitespace-pre-wrap">{{ item.desc }}</p>
             </div>
           </div>
+
+          <!-- 最後新增按鈕 -->
+          <button 
+            @click="openAddModal(null)"
+            class="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold text-sm hover:border-ice-blue hover:text-ice-blue hover:bg-ice-blue/5 transition-all flex items-center justify-center space-x-2"
+          >
+            <Plus :size="16" />
+            <span>新增行程</span>
+          </button>
         </div>
       </div>
     </div>
+
+    <!-- Detail Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showDetailModal && selectedItem"
+        class="fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-sm flex items-end animate-in fade-in duration-200"
+        @click="closeDetailModal"
+      >
+        <div 
+          class="w-full max-w-md mx-auto bg-white rounded-t-[2.5rem] shadow-2xl max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300"
+          @click.stop
+        >
+          <!-- Header -->
+          <div class="flex items-start justify-between sticky top-0 bg-white z-[10] p-6 border-b border-slate-200">
+            <div class="flex items-center space-x-4">
+              <div 
+                :class="['p-4 rounded-2xl', getTypeConfig(selectedItem.type).color]"
+              >
+                <component :is="getTypeConfig(selectedItem.type).icon" :size="24" />
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{{ getTypeConfig(selectedItem.type).label }}</p>
+                <h3 class="text-2xl font-black text-slate-900">{{ selectedItem.location }}</h3>
+              </div>
+            </div>
+            <button @click="closeDetailModal" class="p-2 bg-slate-50 rounded-full text-slate-400 hover:bg-slate-100 transition-colors">
+              <X :size="20" />
+            </button>
+          </div>
+
+          <!-- Time Info -->
+          <div class="bg-slate-50 rounded-2xl p-5">
+            <div class="grid grid-cols-[1fr_auto_1fr] justify-between gap-4">
+              <div class="text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">預計抵達</p>
+                <p class="text-2xl font-black text-slate-900">{{ selectedItem.time }}</p>
+              </div>
+              <!-- Time Difference (Compact) -->
+              <div class="mt-3 pt-3">
+                <span v-if="selectedItem.actualArrival" class="text-xs font-black" :class="calculateDiff(selectedItem.time, selectedItem.actualArrival).includes('晚') ? 'text-red-500' : calculateDiff(selectedItem.time, selectedItem.actualArrival) === '準點' ? 'text-blue-500' : 'text-green-500'">
+                  {{ calculateDiff(selectedItem.time, selectedItem.actualArrival) }}
+                </span>
+              </div>
+              <div class="text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">實際抵達</p>
+                <p class="text-2xl font-black" :class="selectedItem.actualArrival ? 'text-ice-blue' : 'text-slate-300'">
+                  {{ selectedItem.actualArrival || '--:--' }}
+                </p>
+              </div>
+            </div>
+            <!--  -->
+          </div>
+
+          <!-- Description -->
+          <div class="p-5">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">行程描述</p>
+            <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{{ selectedItem.desc }}</p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="sticky bottom-0 bg-white grid grid-cols-[1fr_auto_auto] gap-3 p-5 border-t border-slate-200">
+            <!-- Quick Check-in -->
+            <button 
+              v-if="!selectedItem.actualArrival"
+              @click="handleQuickCheckIn(selectedItem.id); closeDetailModal()"
+              class="py-4 bg-ice-blue text-white rounded-2xl font-black text-sm shadow-lg shadow-blue-200 active:scale-[0.98] transition-all"
+            >
+              立即打卡
+            </button>
+            <button 
+              v-else
+              disabled
+              class="py-4 bg-slate-100 text-slate-400 rounded-2xl font-bold text-sm cursor-not-allowed"
+            >
+              已打卡
+            </button>
+
+            <!-- Edit Button -->
+            <button 
+              @click="openEditModal"
+              class="p-4 bg-ice-blue/20 text-ice-blue rounded-2xl font-bold text-sm active:scale-[0.98] transition-all flex items-center justify-center space-x-2"
+            >
+              <Edit :size="16" />
+            </button>
+
+            <!-- Delete -->
+            <button 
+              @click="deleteItem(selectedItem.id)"
+              class="p-4 bg-red-50 text-red-500 rounded-2xl font-bold text-sm active:scale-[0.98] transition-all"
+            >
+              <Trash2 :size="16" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Modal -->
+      <div 
+        v-if="showEditModal"
+        class="fixed inset-0 z-[70] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-200"
+        @click="showEditModal = false"
+      >
+        <div 
+          class="w-[90%] max-w-md bg-white rounded-3xl p-6 shadow-2xl animate-in zoom-in duration-300 max-h-[90vh] overflow-y-auto"
+          @click.stop
+        >
+          <h3 class="text-xl font-black text-slate-900 mb-6">編輯行程</h3>
+          
+          <div class="space-y-4">
+            <!-- Time -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">預設時間</label>
+              <input 
+                v-model="editForm.time"
+                type="time"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:border-ice-blue focus:outline-none"
+              />
+            </div>
+            <!-- Time -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">實際時間</label>
+              <input 
+                v-model="editForm.actualArrival"
+                type="time"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:border-ice-blue focus:outline-none"
+              />
+            </div>
+
+            <!-- Location -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">地點名稱</label>
+              <input 
+                v-model="editForm.location"
+                type="text"
+                placeholder="例：淺草寺"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:border-ice-blue focus:outline-none"
+              />
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">行程描述</label>
+              <textarea 
+                v-model="editForm.desc"
+                rows="3"
+                placeholder="例：參觀寺廟、購買御守"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm font-medium text-slate-900 focus:border-ice-blue focus:outline-none resize-none"
+              ></textarea>
+            </div>
+
+            <!-- Type -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">類別</label>
+              <div class="grid grid-cols-4 gap-2">
+                <button 
+                  v-for="type in ['transport', 'food', 'attraction', 'other']" 
+                  :key="type"
+                  @click="editForm.type = type"
+                  :class="['p-3 rounded-2xl border-2 transition-all flex items-center justify-center', editForm.type === type ? 'border-ice-blue bg-ice-blue/10' : 'border-slate-200 bg-white']"
+                >
+                  <component :is="getTypeConfig(type).icon" :size="20" :class="editForm.type === type ? 'text-ice-blue' : 'text-slate-400'" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex space-x-3 mt-6">
+            <button 
+              @click="showEditModal = false"
+              class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm active:scale-[0.98] transition-all"
+            >
+              取消
+            </button>
+            <button 
+              @click="saveEdit"
+              class="flex-1 py-3 bg-ice-blue text-white rounded-2xl font-bold text-sm active:scale-[0.98] transition-all flex items-center justify-center space-x-2"
+            >
+              <Save :size="16" />
+              <span>儲存</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Modal -->
+      <div 
+        v-if="showAddModal"
+        class="fixed inset-0 z-[70] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-200"
+        @click="showAddModal = false"
+      >
+        <div 
+          class="w-[90%] max-w-md bg-white rounded-3xl p-6 shadow-2xl animate-in zoom-in duration-300 max-h-[90vh] overflow-y-auto"
+          @click.stop
+        >
+          <h3 class="text-xl font-black text-slate-900 mb-6">新增行程</h3>
+          
+          <div class="space-y-4">
+            <!-- Time -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">時間</label>
+              <input 
+                v-model="addForm.time"
+                type="time"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:border-ice-blue focus:outline-none"
+              />
+            </div>
+
+            <!-- Location -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">地點名稱</label>
+              <input 
+                v-model="addForm.location"
+                type="text"
+                placeholder="例：淺草寺"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:border-ice-blue focus:outline-none"
+              />
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">行程描述</label>
+              <textarea 
+                v-model="addForm.desc"
+                rows="3"
+                placeholder="例：參觀寺廟、購買御守"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm font-medium text-slate-900 focus:border-ice-blue focus:outline-none resize-none"
+              ></textarea>
+            </div>
+
+            <!-- Type -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">類別</label>
+              <div class="grid grid-cols-4 gap-2">
+                <button 
+                  v-for="type in ['transport', 'food', 'attraction', 'other']" 
+                  :key="type"
+                  @click="addForm.type = type"
+                  :class="['p-3 rounded-2xl border-2 transition-all flex items-center justify-center', addForm.type === type ? 'border-ice-blue bg-ice-blue/10' : 'border-slate-200 bg-white']"
+                >
+                  <component :is="getTypeConfig(type).icon" :size="20" :class="addForm.type === type ? 'text-ice-blue' : 'text-slate-400'" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex space-x-3 mt-6">
+            <button 
+              @click="showAddModal = false"
+              class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm active:scale-[0.98] transition-all"
+            >
+              取消
+            </button>
+            <button 
+              @click="saveAdd"
+              class="flex-1 py-3 bg-ice-blue text-white rounded-2xl font-bold text-sm active:scale-[0.98] transition-all flex items-center justify-center space-x-2"
+            >
+              <Plus :size="16" />
+              <span>新增</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
