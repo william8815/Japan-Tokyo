@@ -205,7 +205,7 @@ const deleteItem = (id) => {
       <!-- 行前準備快捷按鈕 -->
       <RouterLink to="/checklist" class="flex items-center space-x-1.5 bg-blue-50 text-blue-500 px-3 py-2 rounded-full active:scale-95 transition-all outline-none ring-2 ring-blue-100 hover:bg-blue-100">
         <CheckSquare :size="14" />
-        <span class="text-[10px] font-bold">行前準備</span>
+        <span class="text-[12px] font-bold">行前準備</span>
       </RouterLink>
     </header>
 

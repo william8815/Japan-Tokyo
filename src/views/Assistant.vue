@@ -1,15 +1,34 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { MessageSquare, QrCode, ChevronRight, Download } from 'lucide-vue-next'
+import { MessageSquare, QrCode, ChevronRight, Download, Trash2 } from 'lucide-vue-next'
 
 const router = useRouter()
+
+const clearData = () => {
+  // 請使用者確認是否要清除所有資料
+  if (!confirm('確定要清除所有資料嗎？')) return
+  // 清除 checklist、expense、voucher、itinerary
+  localStorage.removeItem('checklist')
+  localStorage.removeItem('expense')
+  localStorage.removeItem('voucher')
+  localStorage.removeItem('itinerary')
+  // 因為 PWA 的特性，需要重新載入頁面
+  location.reload()
+}
 </script>
 
 <template>
   <div class="space-y-6">
-    <header class="px-2">
+    <header class="px-2 flex items-center justify-between">
       <h1 class="text-3xl font-black text-slate-900 tracking-tight">旅遊工具箱</h1>
-      <p class="text-slate-500 font-medium">短語助手與數位憑證</p>
+      <!-- 想要新增一個按鈕，可以讓使用者清空在 LocalStorage 儲存的資料 -->
+      <button 
+        @click="clearData"
+        class="flex items-center space-x-1.5 bg-blue-50 text-blue-500 px-3 py-2 rounded-full active:scale-95 transition-all outline-none ring-2 ring-blue-100 hover:bg-blue-100"
+      >
+        <Trash2 :size="14" />
+        <span class="text-[12px] font-bold">清除緩存</span>
+      </button>
     </header>
 
     <div class="space-y-4">
