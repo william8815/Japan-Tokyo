@@ -42,7 +42,7 @@ export const useChecklistStore = defineStore('checklist', {
     if (saved) {
       try {
         const savedData = JSON.parse(saved)
-        return { groups: savedData.groups || defaultGroups }
+        return { groups: savedData || defaultGroups }
       } catch (e) {
         console.error('Failed to load checklist from localStorage:', e)
       }

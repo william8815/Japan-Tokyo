@@ -6,13 +6,12 @@ import ReloadPrompt from './components/ReloadPrompt.vue'
 </script>
 
 <template>
-  <div class="h-dvh relative overflow-x-hidden bg-slate-50">
+  <div class="h-dvh h-screen relative overflow-x-hidden bg-slate-50 overflow-y-auto">
     <!-- 落雪背景動畫組件 -->
     <SnowEffect />
     
     <!-- 主要內容區 -->
     <main class="pb-24 pt-10 px-4 max-w-md mx-auto z-10 transition-all duration-500">
-
       <RouterView v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -21,7 +20,7 @@ import ReloadPrompt from './components/ReloadPrompt.vue'
     </main>
 
     <!-- 底部導覽列 -->
-    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-sm glass rounded-3xl p-1.5 shadow-xl z-50">
+    <nav class="h-[65px] fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-sm glass rounded-3xl p-1.5 shadow-xl z-50">
       <div class="flex justify-between items-center bg-white/20 rounded-2xl p-1 gap-1">
         <RouterLink to="/" class="nav-link" active-class="active-nav" title="今日">
           <Home :size="20" />
