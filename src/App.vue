@@ -6,7 +6,7 @@ import ReloadPrompt from './components/ReloadPrompt.vue'
 </script>
 
 <template>
-  <div class="h-[100dvh] relative overflow-x-hidden bg-slate-50">
+  <div class="h-dvh relative overflow-x-hidden bg-slate-50">
     <!-- 落雪背景動畫組件 -->
     <SnowEffect />
     
