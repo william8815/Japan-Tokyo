@@ -24,7 +24,10 @@ export const useItineraryStore = defineStore('itinerary', {
         items: day.items.map(item => ({
           ...item,
           actualArrival: null,
-          actualDeparture: null
+          address: {
+            url: '',
+            ...item.address,
+          }
         }))
       }
     })
@@ -38,7 +41,6 @@ export const useItineraryStore = defineStore('itinerary', {
           savedDay.items?.forEach((savedItem, itemIdx) => {
             if (days[dayIdx]?.items[itemIdx]) {
               days[dayIdx].items[itemIdx].actualArrival = savedItem.actualArrival
-              days[dayIdx].items[itemIdx].actualDeparture = savedItem.actualDeparture
             }
           })
         })
@@ -68,7 +70,6 @@ export const useItineraryStore = defineStore('itinerary', {
         const item = day.items.find(i => i.id === itemId)
         if (item) {
           if (type === 'arrival') item.actualArrival = currentTime
-          else item.actualDeparture = currentTime
         }
       })
       
@@ -86,7 +87,6 @@ export const useItineraryStore = defineStore('itinerary', {
         const item = day.items.find(i => i.id === itemId)
         if (item) {
           if (type === 'arrival') item.actualArrival = time
-          else item.actualDeparture = time
         }
       })
       
@@ -104,8 +104,9 @@ export const useItineraryStore = defineStore('itinerary', {
         const newItem = {
           id: Date.now(),
           actualArrival: null,
-          actualDeparture: null,
-          details: {},
+          address: {
+            url: ''
+          },
           ...item
         }
         day.items.push(newItem)

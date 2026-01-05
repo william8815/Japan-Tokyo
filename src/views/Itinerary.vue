@@ -133,7 +133,8 @@ const openEditModal = () => {
     actualArrival: selectedItem.value.actualArrival || '',
     location: selectedItem.value.location,
     desc: selectedItem.value.desc,
-    type: selectedItem.value.type
+    type: selectedItem.value.type,
+    address: selectedItem.value?.address || { url: '' }
   }
   showDetailModal.value = false
   showEditModal.value = true
@@ -147,7 +148,8 @@ const saveEdit = () => {
       actualArrival: editForm.value.actualArrival,
       location: editForm.value.location,
       desc: editForm.value.desc,
-      type: editForm.value.type
+      type: editForm.value.type,
+      address: editForm.value?.address || { url: '' }
     })
     showEditModal.value = false
     selectedItem.value = null
@@ -161,7 +163,10 @@ const openAddModal = (afterItemId) => {
     time: '',
     location: '',
     desc: '',
-    type: 'attraction'
+    type: 'attraction',
+    address: {
+      url: ''
+    }
   }
   showAddModal.value = true
 }
@@ -173,14 +178,18 @@ const saveAdd = () => {
       time: addForm.value.time,
       location: addForm.value.location,
       desc: addForm.value.desc,
-      type: addForm.value.type
+      type: addForm.value.type,
+      address: addForm.value?.address || { url: '' }
     })
     showAddModal.value = false
     addForm.value = {
       time: '',
       location: '',
       desc: '',
-      type: 'attraction'
+      type: 'attraction',
+      address: {
+        url:""
+      }
     }
   }
 }
@@ -297,6 +306,18 @@ const deleteItem = (id) => {
               </div>
               <!-- 行程描述 : 超過 2 行以 ... 結束 -->
               <p class="text-sm text-slate-500 font-medium leading-normal pl-2 border-l-2 border-slate-50 line-clamp-2 whitespace-pre-wrap">{{ item.desc }}</p>
+
+              <div v-if="item?.address?.url">
+                <a 
+                  :href="item.address.url"
+                  target="_blank"
+                  class="mt-2 py-3 bg-ice-blue/5 text-ice-blue rounded-2xl font-bold text-sm active:scale-[0.98] transition-all flex items-center justify-center space-x-2 shadow-lg shadow-blue-100"
+                  @click.stop
+                >
+                  <span>前往地圖</span>
+                  <Navigation :size="16" />
+                </a>
+              </div>
             </div>
           </div>
 
@@ -461,6 +482,17 @@ const deleteItem = (id) => {
               ></textarea>
             </div>
 
+            <!-- map url -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">地圖連結</label>
+              <input 
+                v-model="editForm.address.url"
+                type="text"
+                placeholder="例：https://www.google.com/maps"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:border-ice-blue focus:outline-none"
+              />
+            </div>
+
             <!-- Type -->
             <div>
               <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">類別</label>
@@ -538,6 +570,17 @@ const deleteItem = (id) => {
                 placeholder="例：參觀寺廟、購買御守"
                 class="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm font-medium text-slate-900 focus:border-ice-blue focus:outline-none resize-none"
               ></textarea>
+            </div>
+
+            <!-- map url -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">地圖連結</label>
+              <input 
+                v-model="addForm.address.url"
+                type="text"
+                placeholder="例：https://www.google.com/maps"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:border-ice-blue focus:outline-none"
+              />
             </div>
 
             <!-- Type -->
