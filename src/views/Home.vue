@@ -207,14 +207,13 @@ const handleRefresh = () => {
     <section class="grid grid-cols-2 gap-4 px-1 pb-4">
       <!-- 財務看板 -->
       <RouterLink to="/expense" class="glass p-5 rounded-[2.5rem] border border-white shadow-sm space-y-4 active:scale-[0.97] transition-all">
-        <div class="flex justify-between items-start">
+        <div class="flex items-center space-x-2">
           <div class="p-2 bg-orange-50 text-orange-500 rounded-xl">
             <Wallet :size="16" />
           </div>
-          <span class="text-[8px] font-black text-slate-300 uppercase">Expense</span>
+          <h4 class="text-[12px] font-bold text-slate-400">今日支出</h4>
         </div>
         <div>
-          <h4 class="text-[10px] font-bold text-slate-400">今日支出</h4>
           <p class="text-lg font-black text-slate-800 leading-none mt-1">¥{{ todaySummary.spent.toLocaleString() }}</p>
           <p class="text-[9px] font-bold text-slate-400 mt-1">≈ ${{ todaySummary.spentTWD.toLocaleString() }}</p>
         </div>
@@ -232,14 +231,13 @@ const handleRefresh = () => {
 
       <!-- 清單縮影 -->
       <RouterLink to="/checklist" class="glass p-5 rounded-[2.5rem] border border-white shadow-sm space-y-4 active:scale-[0.97] transition-all">
-        <div class="flex justify-between items-start">
+        <div class="flex items-center space-x-2">
           <div class="p-2 bg-blue-50 text-blue-500 rounded-xl">
             <CheckSquare :size="16" />
           </div>
-          <span class="text-[8px] font-black text-slate-300 uppercase">Checklist</span>
+          <h4 class="text-[12px] font-bold text-slate-400">行前準備</h4>
         </div>
         <div class="space-y-2">
-          <h4 class="text-[10px] font-bold text-slate-400">行前準備</h4>
           <div v-if="todaySummary.urgentTasks.length > 0" class="space-y-2">
             <div v-for="task in todaySummary.urgentTasks" :key="task.id" class="flex items-center space-x-2">
               <div class="w-1 h-1 bg-blue-400 rounded-full"></div>

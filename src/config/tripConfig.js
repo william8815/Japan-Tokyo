@@ -110,7 +110,8 @@ export const TRIP_CONFIG = {
           id: 304, time: '12:45', location: '原宿 => 澀谷', desc: '搭乘【JR 山手線】前往澀谷', type: 'transport'
         },
         { 
-          id: 305, time: '13:00', location: '澀谷', desc: '逛逛、買點零食', type: 'attraction'
+          id: 305, time: '13:00', location: '澀谷', desc: '逛逛、買點零食', type: 'attraction',
+          address: {url : "https://maps.app.goo.gl/rq93cYE6rSyWV9MD9"}
         },
         { 
           id: 306, time: '16:15', location: '澀谷 => 新宿', desc: '搭乘【JR 山手線】前往新宿', type: 'transport'
@@ -135,19 +136,24 @@ export const TRIP_CONFIG = {
           id: 401, time: '8:00', location: '池袋 => 箱根湯本', desc: '搭乘【JR 山手線】前往新宿、搭乘【浪漫特快】前往箱根湯本', type: 'transport'
         },
         { 
-          id: 402, time: '10:00', location: '平和鳥居', desc: '打卡拍照', type: 'attraction'
+          id: 402, time: '10:30', location: '箱根神社-平和鳥居', desc: '打卡拍照', type: 'attraction',
+          address: {url : "https://maps.app.goo.gl/PCEuVHXHaqw9sqsv8"}
         },
         { 
-          id: 403, time: '11:30', location: '搭 蘆之湖海盜船 前往 桃園台', desc: '', type: 'attraction'
+          id: 403, time: '11:30', location: '乘坐 蘆之湖海盜船', desc: '從元箱根港 => 桃園台港，沿途看風景', type: 'attraction',
+          address: {url : "https://maps.app.goo.gl/v8BGdbf71bC3B7Nm6"}
         },
         { 
-          id: 404, time: '12:00', location: '搭 纜車 前往 大涌谷', desc: '買黑蛋 & 吃中餐', type: 'attraction'
+          id: 404, time: '12:30', location: '大涌谷', desc: '搭乘纜車前往，買黑蛋 & 吃中餐', type: 'attraction',
+          address: {url : "https://maps.app.goo.gl/ayygcEemSnykVSGeA"}
         },
         { 
-          id: 405, time: '14:30', location: '前往 箱根湯療 泡湯', desc: '泡湯體驗', type: 'attraction'
+          id: 405, time: '14:30', location: '箱根湯療', desc: '搭乘公車前往，泡湯體驗', type: 'attraction',
+          address: {url : "https://maps.app.goo.gl/qsvTxZXgKayPbtjV7"}
         },
         { 
-          id: 406, time: '16:30', location: '商店街', desc: '買伴手禮、北条三福だんご(糰子)', type: 'attraction'
+          id: 406, time: '16:30', location: '商店街', desc: '買伴手禮、北条三福だんご(糰子)', type: 'attraction',
+          address: {url : "https://maps.app.goo.gl/1T2FHSkbpRH6pSF17"}
         },
         { 
           id: 407, time: '17:30', location: '箱根湯本 => 池袋', desc: '搭乘【浪漫特快】前往新宿、搭乘【JR 山手線】前往池袋', type: 'transport'
@@ -162,14 +168,17 @@ export const TRIP_CONFIG = {
       title: 'Day 5: 搭飛機回國',
       items: [
         { 
-          id: 501, time: '08:30', location: '池袋 => 成田第一航廈', desc: '搭乘 利木津巴士', type: 'transport'
+          id: 501, time: '08:30', location: '池袋 => 成田機場', desc: '搭乘 利木津巴士 or JR 山手線 + Skyliner', type: 'transport',
+          address : {url : "https://maps.app.goo.gl/zv26HGxhmbADYKUt5"}
         },
         { 
-          id: 502, time: '12:30', location: '登機', desc: '搭乘 飛機', type: 'transport'
+          id: 502, time: '10:00', location: '成田機場 1 航廈', desc: '報到、過海關', type: 'transport',
+          address : {url : "https://maps.app.goo.gl/zv26HGxhmbADYKUt5"}
         },
         { 
-          id: 503, time: '16:05', location: '抵達 桃園機場第二航廈', desc: '飛機降落', type: 'transport'
-        }
+          id: 503, time: '16:05', location: '桃園機場 2 航廈', desc: '出境、領行李、寄放行李', type: 'transport',
+          address : {url : "https://maps.app.goo.gl/9r4fdYbCSETm4x1x9"}
+        },
       ]
     }
   ]
